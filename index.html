@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Admin panel firebase</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+   <h1>Admin panel firebase</h1>
+   	<h3>Login admin</h3>
+   	<div class="form-group">
+	    <label for="email">Email address:</label>
+	    <input type="email" class="form-control" id="email" autocomplete="off">
+  	</div>
+  	<div class="form-group">
+	    <label for="pass">Password:</label>
+	    <input type="password" class="form-control" id="pass">
+  	</div>
+	  <button type="submit" id="btnLogin" class="btn btn-primary">Login</button>
+	  <button type="submit" id="btnLogout" class="btn btn-danger hidden">logout</button>
+</div>
+</body>
+
+<script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCSPlchU_f5JdqHY3HjcOZREPSy6uiYIaY",
+    authDomain: "admin-panel-de482.firebaseapp.com",
+    databaseURL: "https://admin-panel-de482.firebaseio.com",
+    projectId: "admin-panel-de482",
+    storageBucket: "admin-panel-de482.appspot.com",
+    messagingSenderId: "274396509060"
+  };
+  firebase.initializeApp(config);
+
+  var auth = firebase.auth();
+
+  var email 	= document.getElementById('email');
+  var pass 		= document.getElementById('pass');
+  var btnLogin 	= document.getElementById('btnLogin');
+  var btnLogout = document.getElementById('btnLogout');
+
+
+  btnLogin.addEventListener('click', funcLogin);
+  btnLogout.addEventListener('click', funcLogout);
+
+  // Login
+
+  function funcLogin() {
+  	auth.signInWithEmailAndPassword(email.value, pass.value)
+  		.then(function(data){
+  			console.log("the login was successful");
+  			// console.log(data);
+  			location.reload();
+  		}).catch(function(err){
+  			alert(err)
+  		})
+  }
+
+  //status user
+  auth.onAuthStateChanged(function(user){
+  		if(user) {
+  			//do everthing if user exist.
+  			//this means the user is logged in 
+  			btnLogout.classList.remove('hidden');
+  			btnLogin.classList.add('hidden');
+  			
+  		} else {
+  			//do everthing if user exist.
+  			//this means the user is logged in 
+  			btnLogout.classList.add('hidden');
+  			btnLogin.classList.remove('hidden');
+  		}
+  })
+
+  function funcLogout() {
+  	auth.signOut().then(function(){
+  		console.log("You are logged out")
+  	}).catch(function(err){
+  		alert(err)
+  	})
+  }
+</script>
+</html>
