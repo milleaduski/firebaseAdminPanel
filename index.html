@@ -9,17 +9,32 @@
 <body>
 <div class="container">
    <h1>Admin panel firebase</h1>
-   	<h3>Login admin</h3>
-   	<div class="form-group">
-	    <label for="email">Email address:</label>
-	    <input type="email" class="form-control" id="email" autocomplete="off">
-  	</div>
-  	<div class="form-group">
-	    <label for="pass">Password:</label>
-	    <input type="password" class="form-control" id="pass">
-  	</div>
+    <div id="login">
+      <h3>Login admin</h3>
+     	<div class="form-group">
+  	    <label for="email">Email address:</label>
+  	    <input type="email" class="form-control" id="email" autocomplete="off">
+    	</div>
+    	<div class="form-group">
+  	    <label for="pass">Password:</label>
+  	    <input type="password" class="form-control" id="pass">
+    	</div>
+    </div>
 	  <button type="submit" id="btnLogin" class="btn btn-primary">Login</button>
 	  <button type="submit" id="btnLogout" class="btn btn-danger hidden">logout</button>
+    <hr>
+    <div id="inputdata">
+      <h3>Input Form</h3>
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="desc">desc:</label>
+        <input type="text" class="form-control" id="desc">
+      </div>
+      <button id="btnAddData" class="btn btn-primary">Add</button>
+    </div>
 </div>
 </body>
 
@@ -42,6 +57,8 @@
   var pass 		= document.getElementById('pass');
   var btnLogin 	= document.getElementById('btnLogin');
   var btnLogout = document.getElementById('btnLogout');
+  var formLogin = document.getElementById('login');
+  var formInput = document.getElementById('inputdata');
 
 
   btnLogin.addEventListener('click', funcLogin);
@@ -54,7 +71,7 @@
   		.then(function(data){
   			console.log("the login was successful");
   			// console.log(data);
-  			location.reload();
+  			// location.reload();
   		}).catch(function(err){
   			alert(err)
   		})
@@ -67,12 +84,16 @@
   			//this means the user is logged in 
   			btnLogout.classList.remove('hidden');
   			btnLogin.classList.add('hidden');
+        formLogin.classList.add('hidden');
+        formInput.classList.remove('hidden');
   			
   		} else {
   			//do everthing if user exist.
   			//this means the user is logged in 
   			btnLogout.classList.add('hidden');
   			btnLogin.classList.remove('hidden');
+        formLogin.classList.remove('hidden');
+        formInput.classList.add('hidden');
   		}
   })
 
@@ -83,5 +104,33 @@
   		alert(err)
   	})
   }
+
+  // REALTIME DATABASE
+
+  var database  = firebase.database();
+  var blogsRef  = database.ref('blogs');
+
+  //ELements
+
+  var title       = document.getElementById('title');
+  var desc        = document.getElementById('desc');
+  var btnSubmit   = document.getElementById('btnAddData');
+
+  btnSubmit.addEventListener('click', function(){
+    blogsRef.push({
+      title : title.value,
+      desc : desc.value
+    })
+
+    title   = '';
+    desc    = '';
+  });
+
+  blogsRef.on('child_added', addData);
+
+  function addData() {
+    console.log("Data successfully added")
+  }
+
 </script>
 </html>
