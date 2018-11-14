@@ -35,6 +35,10 @@
       </div>
       <button id="btnAddData" class="btn btn-primary">Add</button>
     </div>
+    <div class="row">
+      <div id="content">
+      </div>
+    </div>
 </div>
 </body>
 
@@ -117,19 +121,39 @@
   var btnSubmit   = document.getElementById('btnAddData');
 
   btnSubmit.addEventListener('click', function(){
-    blogsRef.push({
-      title : title.value,
-      desc : desc.value
-    })
+    //get timestamp
+      var timeId = + new Date();
 
-    title   = '';
-    desc    = '';
+      database.ref('blogs/' + timeId).set({
+        title: title.value,
+        desc: desc.value,
+        time : timeId
+      });
+      title.value   = '';
+      desc.value    = '';
   });
 
   blogsRef.on('child_added', addData);
 
   function addData() {
-    console.log("Data successfully added")
+    // console.log("Data successfully added")
+  }
+
+  //Show the data
+  blogsRef.on('value', showData, showResErr);
+
+  function showData(items) {
+    var content = document.getElementById('content');
+    var data    = '';
+
+    items.forEach(function(item) {
+      data += '<div class="col-md-4"> <h2>'+ item.val().title + '</h2> <p>'+ item.val().desc +'</p> <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> </div>';
+    })
+    content.innerHTML = data;
+  }
+
+  function showResErr() {
+    console.log("error")
   }
 
 </script>
