@@ -34,6 +34,7 @@
         <input type="text" class="form-control" id="desc">
       </div>
       <button id="btnAddData" class="btn btn-primary">Add</button>
+      <button id="btnEditData" class="btn btn-success">Update</button>
     </div>
     <div class="row">
       <div id="content">
@@ -119,6 +120,7 @@
   var title       = document.getElementById('title');
   var desc        = document.getElementById('desc');
   var btnSubmit   = document.getElementById('btnAddData');
+  var btnEdit     = document.getElementById('btnEditData');
 
   btnSubmit.addEventListener('click', function(){
     //get timestamp
@@ -147,7 +149,8 @@
     var data    = '';
 
     items.forEach(function(item) {
-      data += '<div class="col-md-4"> <h2>'+ item.val().title + '</h2> <p>'+ item.val().desc +'</p> <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> </div>';
+      console.log(item.val())
+      data += '<div class="col-md-4"> <h2>'+ item.val().title + '</h2> <p>'+ item.val().desc +'</p> <a class="btn btn-danger" href="#" role="button" onclick="removeItem('+item.val().time+')">Delete &raquo;</a> <a class="btn btn-primary" href="#" role="button" onclick="editItem('+item.val().time+')">Edit &raquo;</a> </div>';
     })
     content.innerHTML = data;
   }
@@ -156,5 +159,225 @@
     console.log("error")
   }
 
+  function removeItem(id) {
+    database.ref('/blogs/'+ id).remove()
+  }
+
+  function editItem(id) {
+    document.getElementById('btnEditData').setAttribute('data-id', id);
+    blogsRef.child(id).once('value', function(item) {
+      title.value = item.val().title
+      desc.value  = item.val().desc
+    })
+  }
+
+  btnEdit.addEventListener('click', function() {
+    var id = document.getElementById('btnEditData').getAttribute('data-id');
+
+    blogsRef.child(id).update({
+      title: title.value,
+      desc: desc.value
+    })
+
+    title.value =  '';
+    desc.value  = '';
+  })
+
 </script>
 </html>
+
+#### Repository
+https://github.com/firebase
+
+#### What Will I Learn?
+- Delete data
+- Set Attribute in element
+- Edit and Update data
+
+#### Requirements
+- Basic HTML, CSS, and javascript
+- Use firebase
+- Local server (Xampp, Wampp, or etc)
+
+
+#### Resources
+- Firebase - https://firebase.google.com/
+
+#### Difficulty
+Basic
+
+### Tutorial Content
+
+We will continue the series of tutorials about firebase, for those of you who have not followed the previous tutorial I suggest you take part in the previous [tutorial](https://steemit.com/utopian-io/@duski.harahap/create-a-system-admin-panel-using-firebase-3-generate-unique-id-and-retrieve-data-1542206827928) in the curriculum section. In previous tutorials, we have created a ***CRUD*** system in Firebase and learn about ***unique IDs*** in our firebase database. But we only learn how to create data in the database. now we will continue by learning how to ***delete and update***. For that, we just start this tutorial.
+
+
+### CRUD in firebase database
+
+We will do the CRUD system applied by the firebase that we have created. in the previous tutorial, we made ***CREATE***. in this tutorial, it goes on and we will ***DELETE*** the database in firebase.
+
+- **Create elements for unique id**
+
+to delete. naturally, we need a unique ID so that the data we delete is appropriate, In previous tutorials, we have learned how to create unique IDs. firebase does not recognize the system of relations between tables, therefore we *cannot* create **PRIMARY KEY** and **FOREIGN KEY**. so we must create an own unique ID. The following is a unique ID that we have made in the previous tutorial.
+
+![Screenshot_4.png](https://ipfs.busy.org/ipfs/QmYPZ95rH2XUqC27iqKJnSGwXbwa9UEXdrEqVurS76aNJN)
+
+
+We already have a **unique id** that represents each data. as we see above the unique id is **KEY** of the **JSON** object.
+
+We will put the **id** into the additional element that we created with the tag element ```<a>```. The **unique id** that we mean is the time that is in the *object*.
+
+![Screenshot_6.png](https://ipfs.busy.org/ipfs/QmaorNzYuTdpZpg5BzB2ocZmdetwbn8R8yRN5E2zzESWBb)
+
+**time** we can make unique id because time has unique and special values and it is different from other keys on the object. Therefore time can be a marker to represent an object. well after we get key ***time***. We will put it in the ```<a>``` element tag like the following:
+
+**Function ```showData()```**
+
+```
+ function showData(items) {
+    var content = document.getElementById('content');
+    var data    = '';
+
+    items.forEach(function(item) {
+      console.log(item.val())
+      data += '<div class="col-md-4"> <h2>'+ item.val().title + '</h2> <p>'+ item.val().desc +'</p> <p><a class="btn btn-danger" href="#" role="button" onclick="removeItem('+item.val().time+')">Delete &raquo;</a></p> </div>';
+    })
+    content.innerHTML = data;
+  }
+```
+
+We can put the **onclick** event on the ```<a>``` element. in the **onclick** event we will call the ```removeItem(item.val().time)``` and will pass the unique id. that is ```item.val().time``` and we can see the HTML element event and time is attached to the element.
+
+
+![Screenshot_8.png](https://ipfs.busy.org/ipfs/QmbZKQAeQTR7nic9rqHgdrMxJHhzKi7aFsd3Hd31WCFnDK)
+
+<br>
+
+- **Create a remove function**
+
+Now it will start creating a function to **delete** data in the database. In *firebase* we can delete data using the ```remove()``` method. The following is an example:
+
+```
+function removeItem(id) {
+    database.ref('/blogs/'+ id).remove()
+}
+```
+  
+- Because we will use the function or event from *firebase.database*. We must first define a variable in this tutorial we have defined the database variable ```var database  = firebase.database();```.
+
+- and then we have to select data that we will delete with ```ref ()```. We will delete ```/blogs/'+ id```.It's means **blogs** is the parents of the object **id** that we get from the parameters we receive in the ```removeItem(id) ``` function. We can see the database directory as shown below:
+
+![Screenshot_9.png](https://ipfs.busy.org/ipfs/QmTPQ2wMhNb8vYsJLZFYNqmd2mKTJUT4hSci8W4j2U2Mzj)
+
+We can see the database directory as shown below ```'/blogs/1542198684582'```.
+ 
+- If all have been completed we can test to delete one of the data in the database. the following are the results
+
+![ezgif.com-video-to-gif (2).gif](https://ipfs.busy.org/ipfs/QmbjXQoZwZsbS9EHDixQbR1GVMgyeW4eMRHMptTu1t2Ej2)
+
+We have been successful to delete data in the database in real-time. Next, we will learn how to edit data.
+
+### Edit data firebase
+
+as well as updating data on other databases. to edit we need a ***unique id*** that represents that data. not much different from the delete function we will also use a unique id which in this tutorial we get from **time**.
+
+- **Create edit function**
+
+Before we make the edit function. We have to make a button so that the user can interact with our system. I add the following button to the HTML element:
+
+
+```
+function showData(items) {
+    var content = document.getElementById('content');
+    var data    = '';
+
+    items.forEach(function(item) {
+      //render html
+      data += '<div class="col-md-4"> <h2>'+ item.val().title + '</h2> <p>'+ item.val().desc +'</p> <p><a class="btn btn-danger" href="#" role="button" onclick="removeItem('+item.val().time+')">Delete &raquo;</a></p> <p><a class="btn btn-primary" href="#" role="button" onclick="editItem('+item.val().time+')">Edit &raquo;</a></p> </div>';
+    })
+    content.innerHTML = data;
+  }
+```
+
+We will use the ***onclick*** event on the element we created and in that event we will call the ```editItem ()``` and in this function we will pass the unique id from key **time** ```item.val().time```.
+<br>
+**function ```editItem()```**
+
+in the ```editItem()``` function we can received the **id** parameter that we will use as a marker of the data object we will edit. For more details, we can see the code below:
+
+```
+function editItem(id) {
+    document.getElementById('btnEditData').setAttribute('data-id', id);
+    blogsRef.child(id).once('value', function(item){
+      console.log(item.val().title)
+    })
+}
+```
+
+- Because what we are editing is the specific data we need to *reference* the ***parent data or table*** that we will edit. We have defined blogs in variable references ```var blogsRef  = database.ref('blogs');```.
+
+- to access child data we can use the ```child ()``` method and pass the unique ID **(id)** and then we can use ```once()```, because we will only run it *once*.
+
+- We can see the data in callback function ```function(item)``` before we go far we can check whether the data can be taken properly. to get the data using the ```val ()```.
+
+- We will use the setAttribute method to add attributes to the button element that we press. we will add the **data-id** attribute ```document.getElementById('btnEditData').setAttribute('data-id', id);```. we need an id to update specific data, so we need id by using the attribute in the element.
+
+![ezgif.com-video-to-gif (3).gif](https://ipfs.busy.org/ipfs/QmUT55qAGorGLQMVvupGXnHvks9nNrAcE4PfwWxaSpruMg)
+<br>
+**Create function onclick in update button**
+
+After we have got the data we need, we will create a new button that will be used to update the data, the element like this:
+
+***Element***
+
+```<button id="btnEditData" class="btn btn-success">Update</button>```
+
+***Defined in javascript***
+
+```var btnEdit     = document.getElementById('btnEditData');```
+
+
+***Create function onclick in button update***
+
+```
+btnEdit.addEventListener('click', function() {
+    var id = document.getElementById('btnEditData').getAttribute('data-id'); // get data id that we set in editItem()
+
+    blogsRef.child(id).update({ //Use event update()
+      title: title.value,
+      desc: desc.value
+    })
+
+    title.value =  '';
+    desc.value  = '';
+  })
+```
+- In the ```editItem()``` function we have set **data-id** based on the unique id. Now we will **get the data-id** that we get from ```var id = document.getElementById('btnEditData').getAttribute('data-id');```.
+
+- Because we will update data that comes from the child, we have to access child, we can access the child with ```child() ``` and we pass the parameter **id** that we get from **data-id**. 
+
+- to update we can use the ```update()``` method and we pass the new value from the object we are editing.
+```
+{
+      title: title.value,
+      desc: desc.value
+ }
+```
+
+After all the steps are done we can run our application and see the results as shown below:
+
+![ezgif.com-video-to-gif (4).gif](https://ipfs.busy.org/ipfs/QmQnzcoMd1P3i6hJ41EqcCCKThR8Jo9aYWnnEw3xHL2CoT)
+
+
+We can see in the picture above. We have done to edit and update the data that is in our firebase database. this means we have completed the **CRUD** system on our application. the tutorial that we follow is just an illustration so you can understand how firebase databases work. the implementation may be different but the concepts we learn are the same. I hope this tutorial is useful for you. thank you
+
+#### Curriculum
+
+[Create a system admin panel using Firebase #1 : initialization, user admin settings, and authentication user admin](https://steemit.com/utopian-io/@duski.harahap/create-a-system-admin-panel-using-firebase-1-initialization-user-admin-settings-and-authentication-user-admin-1541779162747)
+
+[Create a system admin panel using Firebase #2 : Use database and Add child data](https://steemit.com/utopian-io/@duski.harahap/create-a-system-admin-panel-using-firebase-2-use-firebase-database-and-add-child-data-in-realtime-database-1542036820373)
+
+[Create a system admin panel using Firebase #3 : Create a system admin panel using Firebase #3 : Generate unique ID and Retrieve data](https://steemit.com/utopian-io/@duski.harahap/create-a-system-admin-panel-using-firebase-3-generate-unique-id-and-retrieve-data-1542206827928)
+
+#### Proof of work done
+https://github.com/milleaduski/firebaseAdminPanel
+
